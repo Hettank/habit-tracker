@@ -1,18 +1,17 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
+
+	"github.com/Hettank/habit-tracker/internal/response"
 )
 
 func Health(w http.ResponseWriter, r *http.Request) {
 
-	w.Header().Set(
-		"Content-Type",
-		"application/json",
-	)
-
-	json.NewEncoder(w).Encode(
+	response.Success(
+		w,
+		http.StatusOK,
+		"Server Healthy",
 		map[string]string{
 			"status": "ok",
 		},
