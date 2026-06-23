@@ -34,13 +34,96 @@ func Error(w http.ResponseWriter, statusCode int, message string, errors interfa
 	})
 }
 
-func DecodeJSON(
-	r *http.Request,
-	dst interface{},
-) error {
+func Created(w http.ResponseWriter, message string, data interface{}) {
+	Success(
+		w,
+		http.StatusCreated,
+		message,
+		data,
+	)
+}
 
-	decoder := json.NewDecoder(r.Body)
-	decoder.DisallowUnknownFields()
+func BadRequest(
+	w http.ResponseWriter,
+	message string,
+	errors interface{},
+) {
+	Error(
+		w,
+		http.StatusBadRequest,
+		message,
+		errors,
+	)
+}
 
-	return decoder.Decode(dst)
+func Unauthorized(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusUnauthorized,
+		message,
+		nil,
+	)
+}
+
+func Forbidden(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusForbidden,
+		message,
+		nil,
+	)
+}
+
+func NotFound(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusNotFound,
+		message,
+		nil,
+	)
+}
+
+func InternalServerError(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusInternalServerError,
+		message,
+		nil,
+	)
+}
+
+func Conflict(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusConflict,
+		message,
+		nil,
+	)
+}
+
+func MethodNotAllowed(
+	w http.ResponseWriter,
+	message string,
+) {
+	Error(
+		w,
+		http.StatusMethodNotAllowed,
+		message,
+		nil,
+	)
 }
