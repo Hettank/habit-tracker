@@ -13,7 +13,10 @@ import (
 	"github.com/Hettank/habit-tracker/internal/app"
 	"github.com/Hettank/habit-tracker/internal/config"
 	"github.com/Hettank/habit-tracker/internal/db"
+	"github.com/Hettank/habit-tracker/internal/handlers"
+	"github.com/Hettank/habit-tracker/internal/repositories"
 	"github.com/Hettank/habit-tracker/internal/routes"
+	"github.com/Hettank/habit-tracker/internal/services"
 )
 
 func main() {
@@ -29,17 +32,22 @@ func main() {
 
 	log.Println("Database Connected successfully.")
 
+	// Dependency Injection
+	userRepo := repositories.NewUserRepository(dbPool)
+	authService := services.NewAuthService(userRepo)
+	authHandler := handlers.NewAuthHandler(authService)
+
+	// Register routes
+	mux := routes.SetupRoutes(authHandler)
+
 	// 3. Create App (Dependency Injection container)
 	application := app.New(cfg, dbPool)
 	_ = application
 
-	// 4. Setup routes
-	router := routes.SetupRoutes()
-
 	// Create HTTP Server
 	server := &http.Server{
 		Addr:    fmt.Sprintf(":%s", cfg.Port),
-		Handler: router,
+		Handler: mux,
 	}
 
 	// Create a Goroutine
