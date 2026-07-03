@@ -17,6 +17,7 @@ import (
 	"github.com/Hettank/habit-tracker/internal/repositories"
 	"github.com/Hettank/habit-tracker/internal/routes"
 	"github.com/Hettank/habit-tracker/internal/services"
+	"github.com/Hettank/habit-tracker/internal/utils"
 )
 
 func main() {
@@ -34,7 +35,10 @@ func main() {
 
 	// Dependency Injection
 	userRepo := repositories.NewUserRepository(dbPool)
-	authService := services.NewAuthService(userRepo)
+	refreshRepo := repositories.NewRefreshTokenRepository(dbPool)
+	jwtManager := utils.NewJWTManager(cfg.JWTSecret, cfg.AccessTokenTTL)
+
+	authService := services.NewAuthService(userRepo, refreshRepo, jwtManager)
 	authHandler := handlers.NewAuthHandler(authService)
 
 	// Register routes

@@ -12,12 +12,20 @@ import (
 
 // whenever the service needs user data, it asks the repository.
 type AuthService struct {
-	userRepo *repositories.UserRepository
+	userRepo    *repositories.UserRepository
+	refreshRepo *repositories.RefreshTokenRepository
+	jwtManager  *utils.JWTManager
 }
 
-func NewAuthService(userRepo *repositories.UserRepository) *AuthService {
+func NewAuthService(
+	userRepo *repositories.UserRepository,
+	refreshRepo *repositories.RefreshTokenRepository,
+	jwtManager *utils.JWTManager,
+) *AuthService {
 	return &AuthService{
-		userRepo: userRepo,
+		userRepo:    userRepo,
+		refreshRepo: refreshRepo,
+		jwtManager:  jwtManager,
 	}
 }
 
