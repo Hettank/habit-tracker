@@ -22,5 +22,10 @@ func SetupRoutes(
 		authHandler.Register,
 	)
 
+	mux.HandleFunc(
+		"POST /api/v1/auth/login",
+		authHandler.Login,
+	)
+
 	return mux
 }

@@ -36,7 +36,7 @@ func main() {
 	// Dependency Injection
 	userRepo := repositories.NewUserRepository(dbPool)
 	refreshRepo := repositories.NewRefreshTokenRepository(dbPool)
-	jwtManager := utils.NewJWTManager(cfg.JWTSecret, cfg.AccessTokenTTL)
+	jwtManager := utils.NewJWTManager(cfg.JWTSecret, cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
 
 	authService := services.NewAuthService(userRepo, refreshRepo, jwtManager)
 	authHandler := handlers.NewAuthHandler(authService)

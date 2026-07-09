@@ -17,17 +17,20 @@ type Claims struct {
 }
 
 type JWTManager struct {
-	secretKey []byte
-	accessTTL time.Duration
+	secretKey  []byte
+	accessTTL  time.Duration
+	refreshTTL time.Duration
 }
 
 func NewJWTManager(
 	secret string,
 	accessTTL time.Duration,
+	refreshTTL time.Duration,
 ) *JWTManager {
 	return &JWTManager{
-		secretKey: []byte(secret),
-		accessTTL: accessTTL,
+		secretKey:  []byte(secret),
+		accessTTL:  accessTTL,
+		refreshTTL: refreshTTL,
 	}
 }
 
@@ -48,7 +51,7 @@ func (j *JWTManager) GenerateAccessToken(
 	}
 
 	token := jwt.NewWithClaims(
-		jwt.SigningMethodES256,
+		jwt.SigningMethodHS256,
 		claims,
 	)
 
@@ -82,4 +85,12 @@ func (j *JWTManager) ValidateAccessToken(
 	}
 
 	return claims, nil
+}
+
+func (tm *JWTManager) AccessTokenTTL() time.Duration {
+	return tm.accessTTL
+}
+
+func (tm *JWTManager) RefreshTokenTTL() time.Duration {
+	return tm.refreshTTL
 }

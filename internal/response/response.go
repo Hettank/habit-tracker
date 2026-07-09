@@ -127,3 +127,15 @@ func MethodNotAllowed(
 		nil,
 	)
 }
+
+func ValidationError(
+	w http.ResponseWriter,
+	errors map[string]string,
+) {
+	Error(
+		w,
+		http.StatusBadRequest,
+		"Validation failed",
+		errors,
+	)
+}

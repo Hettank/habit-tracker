@@ -81,3 +81,137 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		res,
 	)
 }
+
+func (h *AuthHandler) Login(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	var req dto.LoginRequest
+
+	if err := response.DecodeJSON(r, &req); err != nil {
+		response.BadRequest(
+			w,
+			"Invalid request body",
+			nil,
+		)
+		return
+	}
+
+	if errs := validator.Validate.Struct(req); errs != nil {
+		response.ValidationError(
+			w,
+			validator.FormatValidationErrors(errs),
+		)
+		return
+	}
+
+	result, err := h.authService.Login(
+		r.Context(),
+		req,
+	)
+
+	if err != nil {
+
+		switch {
+
+		case errors.Is(err, apperrors.ErrInvalidCredentials):
+			response.Unauthorized(
+				w,
+				err.Error(),
+			)
+
+		default:
+			response.InternalServerError(
+				w,
+				"internal server error",
+			)
+		}
+
+		return
+	}
+
+	http.SetCookie(
+		w,
+		&http.Cookie{
+			Name:     "refresh_token",
+			Value:    result.RefreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteStrictMode,
+			Expires:  result.RefreshExpiry,
+		},
+	)
+
+	loginResponse := dto.LoginResponse{
+		AccessToken: result.AccessToken,
+	}
+
+	response.Success(
+		w,
+		http.StatusOK,
+		"Login successful",
+		loginResponse,
+	)
+}
+
+func (h *AuthHandler) Refresh(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	// Step 1: Read refresh token cookie
+	cookie, err := r.Cookie("refresh_token")
+
+	if err != nil {
+		response.Unauthorized(
+			w,
+			"refresh token missing",
+		)
+		return
+	}
+
+	// Step 2: Call Service
+	result, err := h.authService.Refresh(
+		r.Context(),
+		cookie.Value,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrUnauthorized):
+			response.Unauthorized(
+				w,
+				err.Error(),
+			)
+		default:
+			response.InternalServerError(
+				w,
+				"Internal Server Error",
+			)
+		}
+	}
+
+	// Step 3: Replace refresh token cookie
+	http.SetCookie(
+		w,
+		&http.Cookie{
+			Name:     "refresh_token",
+			Value:    result.RefreshToken,
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteStrictMode,
+			Expires:  result.RefreshExpiry,
+		},
+	)
+
+	// Step 4: Return new access token
+	response.Success(
+		w,
+		http.StatusOK,
+		"token refreshed successfully",
+		dto.RefreshResponse{
+			AccessToken: result.AccessToken,
+		},
+	)
+}
