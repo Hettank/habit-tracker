@@ -4,10 +4,14 @@ import (
 	"net/http"
 
 	"github.com/Hettank/habit-tracker/internal/handlers"
+	"github.com/Hettank/habit-tracker/internal/middleware"
+	"github.com/Hettank/habit-tracker/internal/utils"
 )
 
 func SetupRoutes(
 	authHandler *handlers.AuthHandler,
+	userHandler *handlers.UserHandler,
+	jwtManager *utils.JWTManager,
 ) *http.ServeMux {
 
 	mux := http.NewServeMux()
@@ -25,6 +29,32 @@ func SetupRoutes(
 	mux.HandleFunc(
 		"POST /api/v1/auth/login",
 		authHandler.Login,
+	)
+
+	mux.Handle(
+		"POST /api/v1/auth/logout",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(authHandler.Logout),
+		),
+	)
+
+	mux.Handle(
+		"POST /api/v1/auth/logout-all",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(authHandler.LogoutAll),
+		),
+	)
+
+	mux.HandleFunc(
+		"POST /api/v1/auth/refresh",
+		authHandler.Refresh,
+	)
+
+	mux.Handle(
+		"GET /api/v1/me",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(userHandler.Me),
+		),
 	)
 
 	return mux

@@ -36,13 +36,29 @@ func main() {
 	// Dependency Injection
 	userRepo := repositories.NewUserRepository(dbPool)
 	refreshRepo := repositories.NewRefreshTokenRepository(dbPool)
-	jwtManager := utils.NewJWTManager(cfg.JWTSecret, cfg.AccessTokenTTL, cfg.RefreshTokenTTL)
 
-	authService := services.NewAuthService(userRepo, refreshRepo, jwtManager)
+	jwtManager := utils.NewJWTManager(
+		cfg.JWTSecret,
+		cfg.AccessTokenTTL,
+		cfg.RefreshTokenTTL,
+	)
+
+	authService := services.NewAuthService(
+		userRepo,
+		refreshRepo,
+		jwtManager,
+	)
+
+	userService := services.NewUserservice(userRepo)
+
 	authHandler := handlers.NewAuthHandler(authService)
+	userHandler := handlers.NewUserHandler(userService)
 
-	// Register routes
-	mux := routes.SetupRoutes(authHandler)
+	mux := routes.SetupRoutes(
+		authHandler,
+		userHandler,
+		jwtManager,
+	)
 
 	// 3. Create App (Dependency Injection container)
 	application := app.New(cfg, dbPool)

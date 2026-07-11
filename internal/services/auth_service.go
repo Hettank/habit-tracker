@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/Hettank/habit-tracker/internal/dto"
@@ -197,4 +198,29 @@ func (s *AuthService) Refresh(
 	}
 
 	return s.createSession(ctx, user)
+}
+
+func (s *AuthService) Logout(
+	ctx context.Context,
+	refreshToken string,
+) error {
+	hashedToken := utils.HashToken(refreshToken)
+
+	err := s.refreshRepo.RevokeByTokenHash(ctx, hashedToken)
+
+	if errors.Is(err, apperrors.ErrRefreshTokenNotFound) {
+		return apperrors.ErrUnauthorized
+	}
+
+	return err
+}
+
+func (s *AuthService) LogoutAll(
+	ctx context.Context,
+	userID int64,
+) error {
+	return s.refreshRepo.RevokeAllByUserId(
+		ctx,
+		userID,
+	)
 }

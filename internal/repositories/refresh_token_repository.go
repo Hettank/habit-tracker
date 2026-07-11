@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	apperrors "github.com/Hettank/habit-tracker/internal/errors"
 	"github.com/Hettank/habit-tracker/internal/models"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -127,4 +128,60 @@ func (r *RefreshTokenRepository) DeleteByUserId(
 	)
 
 	return err
+}
+
+func (r *RefreshTokenRepository) RevokeByTokenHash(
+	ctx context.Context,
+	tokenHash string,
+) error {
+	query := `
+		UPDATE refresh_tokens
+		SET revoked_at = NOW()
+		WHERE token_hash = $1
+			AND revoked_at IS NULL;
+	`
+
+	result, err := r.db.Exec(
+		ctx,
+		query,
+		tokenHash,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return apperrors.ErrRefreshTokenNotFound
+	}
+
+	return nil
+}
+
+func (r *RefreshTokenRepository) RevokeAllByUserId(
+	ctx context.Context,
+	userId int64,
+) error {
+	query := `
+		UPDATE refresh_tokens
+		SET revoked_at = NOW()
+		WHERE user_id = $1
+			AND revoked_at IS NULL
+	`
+
+	result, err := r.db.Exec(
+		ctx,
+		query,
+		userId,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return apperrors.ErrRefreshTokenNotFound
+	}
+
+	return nil
 }

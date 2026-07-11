@@ -6,6 +6,7 @@ import (
 
 	"github.com/Hettank/habit-tracker/internal/dto"
 	apperrors "github.com/Hettank/habit-tracker/internal/errors"
+	"github.com/Hettank/habit-tracker/internal/middleware"
 	"github.com/Hettank/habit-tracker/internal/response"
 	"github.com/Hettank/habit-tracker/internal/services"
 	"github.com/Hettank/habit-tracker/internal/validator"
@@ -213,5 +214,112 @@ func (h *AuthHandler) Refresh(
 		dto.RefreshResponse{
 			AccessToken: result.AccessToken,
 		},
+	)
+}
+
+func (h *AuthHandler) Logout(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	// Read refresh token from cookie
+	cookie, err := r.Cookie("refresh_token")
+	if err != nil {
+		response.Unauthorized(
+			w,
+			"refresh token is missing",
+		)
+		return
+	}
+
+	// Call service
+	err = h.authService.Logout(
+		r.Context(),
+		cookie.Value,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrUnauthorized):
+			response.Unauthorized(
+				w,
+				err.Error(),
+			)
+
+		default:
+			response.InternalServerError(
+				w,
+				"internal server error",
+			)
+		}
+
+		return
+	}
+
+	// Delete refresh token cookie
+	http.SetCookie(
+		w,
+		&http.Cookie{
+			Name:     "refresh_token",
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteStrictMode,
+			MaxAge:   -1,
+		},
+	)
+
+	response.Success(
+		w,
+		http.StatusOK,
+		"logged out successfully",
+		nil,
+	)
+}
+
+func (h *AuthHandler) LogoutAll(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	claims, ok := middleware.GetClaims(r.Context())
+
+	if !ok {
+		response.Unauthorized(w, "unauthorized")
+		return
+	}
+
+	// Call service
+	err := h.authService.LogoutAll(
+		r.Context(),
+		claims.UserID,
+	)
+
+	if err != nil {
+		response.InternalServerError(
+			w,
+			"internal server error",
+		)
+		return
+	}
+
+	// Delete refresh token cookie
+	http.SetCookie(
+		w,
+		&http.Cookie{
+			Name:     "refresh_token",
+			Value:    "",
+			Path:     "/",
+			HttpOnly: true,
+			Secure:   false,
+			SameSite: http.SameSiteStrictMode,
+			MaxAge:   -1,
+		},
+	)
+
+	response.Success(
+		w,
+		http.StatusOK,
+		"logged out from all the devices successfully",
+		nil,
 	)
 }
