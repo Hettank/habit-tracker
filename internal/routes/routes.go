@@ -11,10 +11,13 @@ import (
 func SetupRoutes(
 	authHandler *handlers.AuthHandler,
 	userHandler *handlers.UserHandler,
+	habitHandler *handlers.HabitHandler,
 	jwtManager *utils.JWTManager,
 ) *http.ServeMux {
 
 	mux := http.NewServeMux()
+
+	// ================== Auth Routes ==================
 
 	mux.HandleFunc(
 		"GET /health",
@@ -54,6 +57,15 @@ func SetupRoutes(
 		"GET /api/v1/me",
 		middleware.AuthMiddleware(jwtManager)(
 			http.HandlerFunc(userHandler.Me),
+		),
+	)
+
+	// ================== Habit Routes ==================
+
+	mux.Handle(
+		"POST /api/v1/habits",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.CreateHabit),
 		),
 	)
 
