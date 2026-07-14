@@ -8,4 +8,6 @@ var (
 	ErrUnauthorized         = errors.New("unauthorized")
 	ErrForbidden            = errors.New("forbidden")
 	ErrRefreshTokenNotFound = errors.New("refresh token not found")
+	ErrNotFound             = errors.New("resource not found")
+	ErrAlreadyCheckedIn     = errors.New("habit already checked in for today")
 )

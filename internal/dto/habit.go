@@ -18,3 +18,10 @@ type HabitResponse struct {
 	CreatedAt   time.Time `json:"created_at"`
 	UpdatedAt   time.Time `json:"updated_at"`
 }
+
+type UpdateHabitRequest struct {
+	Title       string `json:"title" validate:"required,max=25"`
+	Description string `json:"description" validate:"max=250"`
+	Color       string `json:"color"`
+	Icon        string `json:"icon"`
+}

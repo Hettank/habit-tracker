@@ -69,5 +69,47 @@ func SetupRoutes(
 		),
 	)
 
+	mux.Handle(
+		"GET /api/v1/habits",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabits),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/today",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetCheckedInHabitsToday),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/{id}",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabitByID),
+		),
+	)
+
+	mux.Handle(
+		"PUT /api/v1/habits/{id}",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.UpdateHabit),
+		),
+	)
+
+	mux.Handle(
+		"DELETE /api/v1/habits/{id}",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.DeleteHabit),
+		),
+	)
+
+	mux.Handle(
+		"POST /api/v1/habits/{id}/check-in",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.CheckInHabit),
+		),
+	)
+
 	return mux
 }

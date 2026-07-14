@@ -36,6 +36,7 @@ func main() {
 	// Dependency Injection
 	userRepo := repositories.NewUserRepository(dbPool)
 	refreshRepo := repositories.NewRefreshTokenRepository(dbPool)
+	habitRepo := repositories.NewHabitRepository(dbPool)
 
 	jwtManager := utils.NewJWTManager(
 		cfg.JWTSecret,
@@ -50,13 +51,16 @@ func main() {
 	)
 
 	userService := services.NewUserservice(userRepo)
+	habitService := services.NewHabitService(habitRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService)
+	habitHandler := handlers.NewHabitHandler(habitService)
 
 	mux := routes.SetupRoutes(
 		authHandler,
 		userHandler,
+		habitHandler,
 		jwtManager,
 	)
 
