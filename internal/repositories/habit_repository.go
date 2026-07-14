@@ -358,3 +358,47 @@ func (r *HabitRepository) GetCheckedInHabitsToday(
 
 	return habits, nil
 }
+
+func (r *HabitRepository) GetHabitHistory(
+	ctx context.Context,
+	habitID int64,
+) ([]models.HabitLog, error) {
+	query := `
+		SELECT
+			id,
+			habit_id,
+			completed_at,
+			created_at
+		FROM habit_logs
+		WHERE habit_id = $1
+		ORDER BY completed_at DESC
+	`
+
+	rows, err := r.db.Query(ctx, query, habitID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var logs []models.HabitLog
+
+	for rows.Next() {
+		var log models.HabitLog
+		if err := rows.Scan(
+			&log.ID,
+			&log.HabitID,
+			&log.CompletedAt,
+			&log.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		logs = append(logs, log)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}
+

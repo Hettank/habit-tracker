@@ -423,6 +423,126 @@ func (h *HabitHandler) GetCheckedInHabitsToday(
 	)
 }
 
+func (h *HabitHandler) GetHabitHistory(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id, err := parseIDParam(r)
+	if err != nil {
+		response.BadRequest(
+			w,
+			"invalid habit id",
+			nil,
+		)
+		return
+	}
+
+	claims, ok := middleware.GetClaims(r.Context())
+	if !ok {
+		response.Unauthorized(
+			w,
+			"unauthorized",
+		)
+		return
+	}
+
+	logs, err := h.habitService.GetHistory(
+		r.Context(),
+		id,
+		claims.UserID,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrNotFound):
+			response.NotFound(
+				w,
+				"habit not found",
+			)
+		default:
+			response.InternalServerError(
+				w,
+				"failed to fetch habit history",
+			)
+		}
+		return
+	}
+
+	res := make([]dto.HabitLogResponse, len(logs))
+	for i, log := range logs {
+		res[i] = dto.HabitLogResponse{
+			ID:          log.ID,
+			HabitID:     log.HabitID,
+			CompletedAt: log.CompletedAt,
+			CreatedAt:   log.CreatedAt,
+		}
+	}
+
+	response.Success(
+		w,
+		http.StatusOK,
+		"habit history fetched successfully",
+		res,
+	)
+}
+
+func (h *HabitHandler) GetHabitStreak(
+	w http.ResponseWriter,
+	r *http.Request,
+) {
+	id, err := parseIDParam(r)
+	if err != nil {
+		response.BadRequest(
+			w,
+			"invalid habit id",
+			nil,
+		)
+		return
+	}
+
+	claims, ok := middleware.GetClaims(r.Context())
+	if !ok {
+		response.Unauthorized(
+			w,
+			"unauthorized",
+		)
+		return
+	}
+
+	streak, err := h.habitService.GetStreak(
+		r.Context(),
+		id,
+		claims.UserID,
+	)
+
+	if err != nil {
+		switch {
+		case errors.Is(err, apperrors.ErrNotFound):
+			response.NotFound(
+				w,
+				"habit not found",
+			)
+		default:
+			response.InternalServerError(
+				w,
+				"failed to fetch habit streak",
+			)
+		}
+		return
+	}
+
+	res := dto.HabitStreakResponse{
+		CurrentStreak: streak,
+	}
+
+	response.Success(
+		w,
+		http.StatusOK,
+		"habit streak fetched successfully",
+		res,
+	)
+}
+
 // parseIDParam extracts the {id} path value from the request URL.
 func parseIDParam(r *http.Request) (int64, error) {
 	return strconv.ParseInt(

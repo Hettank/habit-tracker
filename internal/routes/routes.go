@@ -12,6 +12,7 @@ func SetupRoutes(
 	authHandler *handlers.AuthHandler,
 	userHandler *handlers.UserHandler,
 	habitHandler *handlers.HabitHandler,
+	dashboardHandler *handlers.DashboardHandler,
 	jwtManager *utils.JWTManager,
 ) *http.ServeMux {
 
@@ -108,6 +109,29 @@ func SetupRoutes(
 		"POST /api/v1/habits/{id}/check-in",
 		middleware.AuthMiddleware(jwtManager)(
 			http.HandlerFunc(habitHandler.CheckInHabit),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/{id}/history",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabitHistory),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/{id}/streak",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabitStreak),
+		),
+	)
+
+
+	// ================== Dashboard Routes ==================
+	mux.Handle(
+		"GET /api/v1/dashboard",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(dashboardHandler.GetDashboard),
 		),
 	)
 

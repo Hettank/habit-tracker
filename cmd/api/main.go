@@ -37,6 +37,7 @@ func main() {
 	userRepo := repositories.NewUserRepository(dbPool)
 	refreshRepo := repositories.NewRefreshTokenRepository(dbPool)
 	habitRepo := repositories.NewHabitRepository(dbPool)
+	dashboardRepo := repositories.NewDashboardRepository(dbPool)
 
 	jwtManager := utils.NewJWTManager(
 		cfg.JWTSecret,
@@ -52,15 +53,18 @@ func main() {
 
 	userService := services.NewUserservice(userRepo)
 	habitService := services.NewHabitService(habitRepo)
+	dashboardService := services.NewDashboardService(dashboardRepo)
 
 	authHandler := handlers.NewAuthHandler(authService)
 	userHandler := handlers.NewUserHandler(userService)
 	habitHandler := handlers.NewHabitHandler(habitService)
+	dashboardHandler := handlers.NewDashboardHandler(dashboardService)
 
 	mux := routes.SetupRoutes(
 		authHandler,
 		userHandler,
 		habitHandler,
+		dashboardHandler,
 		jwtManager,
 	)
 

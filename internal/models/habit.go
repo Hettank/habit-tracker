@@ -13,3 +13,10 @@ type Habit struct {
 	UpdatedAt   time.Time
 	DeletedAt   *time.Time
 }
+
+type HabitLog struct {
+	ID          int64
+	HabitID     int64
+	CompletedAt time.Time
+	CreatedAt   time.Time
+}
