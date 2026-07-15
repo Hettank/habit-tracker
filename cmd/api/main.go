@@ -24,7 +24,13 @@ func main() {
 	// 1. Load Configuration
 	cfg := config.Load()
 
-	// 2. Initialize Dependencies (Database)
+	// 2. Build DSN and Run Migrations
+	dsn := db.BuildDSN(cfg)
+	if err := db.RunMigrations(dsn); err != nil {
+		log.Fatalf("Migration failed: %v", err)
+	}
+
+	// 3. Initialize Dependencies (Database)
 	dbPool, err := db.New(cfg)
 	if err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)

@@ -14,10 +14,12 @@ import (
 	"github.com/Hettank/habit-tracker/internal/validator"
 )
 
+// HabitHandler handles HTTP requests for habit-related endpoints.
 type HabitHandler struct {
 	habitService *services.HabitService
 }
 
+// NewHabitHandler creates a new HabitHandler with the given service dependency.
 func NewHabitHandler(
 	habitService *services.HabitService,
 ) *HabitHandler {

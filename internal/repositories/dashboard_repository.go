@@ -6,16 +6,19 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// DashboardRepository provides data access methods for dashboard statistics.
 type DashboardRepository struct {
 	db *pgxpool.Pool
 }
 
+// NewDashboardRepository creates a new DashboardRepository with the given connection pool.
 func NewDashboardRepository(db *pgxpool.Pool) *DashboardRepository {
 	return &DashboardRepository{
 		db: db,
 	}
 }
 
+// DashboardStats holds raw counts fetched from the database for dashboard calculations.
 type DashboardStats struct {
 	TotalHabits    int64
 	CompletedToday int64

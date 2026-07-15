@@ -8,10 +8,12 @@ import (
 	"github.com/Hettank/habit-tracker/internal/services"
 )
 
+// DashboardHandler handles HTTP requests for dashboard endpoints.
 type DashboardHandler struct {
 	dashboardService *services.DashboardService
 }
 
+// NewDashboardHandler creates a new DashboardHandler with the given service dependency.
 func NewDashboardHandler(
 	dashboardService *services.DashboardService,
 ) *DashboardHandler {

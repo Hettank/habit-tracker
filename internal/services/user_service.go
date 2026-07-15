@@ -7,10 +7,12 @@ import (
 	"github.com/Hettank/habit-tracker/internal/repositories"
 )
 
+// UserService contains business logic for user profile operations.
 type UserService struct {
 	userRepo *repositories.UserRepository
 }
 
+// NewUserservice creates a new UserService with the given repository dependency.
 func NewUserservice(
 	userRepo *repositories.UserRepository,
 ) *UserService {

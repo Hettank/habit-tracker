@@ -10,10 +10,12 @@ import (
 	"github.com/Hettank/habit-tracker/internal/repositories"
 )
 
+// HabitService contains business logic for habit management.
 type HabitService struct {
 	habitRepo *repositories.HabitRepository
 }
 
+// NewHabitService creates a new HabitService with the given repository dependency.
 func NewHabitService(
 	habitRepo *repositories.HabitRepository,
 ) *HabitService {

@@ -9,10 +9,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+// HabitRepository provides data access methods for the habits and habit_logs tables.
 type HabitRepository struct {
 	db *pgxpool.Pool
 }
 
+// NewHabitRepository creates a new HabitRepository with the given connection pool.
 func NewHabitRepository(db *pgxpool.Pool) *HabitRepository {
 	return &HabitRepository{
 		db: db,

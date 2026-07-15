@@ -10,8 +10,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func New(cfg *config.Config) (*pgxpool.Pool, error) {
-	dsn := fmt.Sprintf(
+// BuildDSN constructs a PostgreSQL connection string from the application configuration.
+func BuildDSN(cfg *config.Config) string {
+	return fmt.Sprintf(
 		"postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		cfg.DBUser,
 		cfg.DBPassword,
@@ -20,7 +21,12 @@ func New(cfg *config.Config) (*pgxpool.Pool, error) {
 		cfg.DBName,
 		cfg.DBSSLMode,
 	)
+}
 
+// New creates a PostgreSQL connection pool and verifies connectivity with a ping.
+func New(cfg *config.Config) (*pgxpool.Pool, error) {
+	dsn := BuildDSN(cfg)
+	log.Println("DSN:", dsn)
 	pool, err := pgxpool.New(context.Background(), dsn)
 
 	if err != nil {
@@ -39,6 +45,7 @@ func New(cfg *config.Config) (*pgxpool.Pool, error) {
 	return pool, nil
 }
 
+// Close gracefully shuts down the PostgreSQL connection pool.
 func Close(pool *pgxpool.Pool) {
 	if pool != nil {
 		pool.Close()

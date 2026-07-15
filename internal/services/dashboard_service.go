@@ -7,10 +7,12 @@ import (
 	"github.com/Hettank/habit-tracker/internal/repositories"
 )
 
+// DashboardService contains business logic for calculating dashboard statistics.
 type DashboardService struct {
 	dashboardRepo *repositories.DashboardRepository
 }
 
+// NewDashboardService creates a new DashboardService with the given repository dependency.
 func NewDashboardService(
 	dashboardRepo *repositories.DashboardRepository,
 ) *DashboardService {

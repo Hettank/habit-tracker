@@ -12,13 +12,14 @@ import (
 	"github.com/Hettank/habit-tracker/internal/utils"
 )
 
-// whenever the service needs user data, it asks the repository.
+// AuthService contains business logic for user authentication and session management.
 type AuthService struct {
 	userRepo    *repositories.UserRepository
 	refreshRepo *repositories.RefreshTokenRepository
 	jwtManager  *utils.JWTManager
 }
 
+// NewAuthService creates a new AuthService with the given dependencies.
 func NewAuthService(
 	userRepo *repositories.UserRepository,
 	refreshRepo *repositories.RefreshTokenRepository,

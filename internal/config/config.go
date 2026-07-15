@@ -8,7 +8,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// We pass this config throughout the application, This is dependency injection
+// Config holds all application configuration loaded from environment variables.
 type Config struct {
 	Port       string
 	DBHost     string
@@ -23,6 +23,7 @@ type Config struct {
 	RefreshTokenTTL time.Duration
 }
 
+// Load reads environment variables from a .env file and returns a populated Config.
 func Load() *Config {
 	err := godotenv.Load()
 	accessTTL, err := time.ParseDuration(os.Getenv("ACCESS_TOKEN_TTL"))

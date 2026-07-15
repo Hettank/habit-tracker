@@ -8,6 +8,7 @@ import (
 	"github.com/Hettank/habit-tracker/internal/utils"
 )
 
+// SetupRoutes registers all API routes and applies authentication middleware.
 func SetupRoutes(
 	authHandler *handlers.AuthHandler,
 	userHandler *handlers.UserHandler,
@@ -64,23 +65,30 @@ func SetupRoutes(
 	// ================== Habit Routes ==================
 
 	mux.Handle(
-		"POST /api/v1/habits",
-		middleware.AuthMiddleware(jwtManager)(
-			http.HandlerFunc(habitHandler.CreateHabit),
-		),
-	)
-
-	mux.Handle(
-		"GET /api/v1/habits",
-		middleware.AuthMiddleware(jwtManager)(
-			http.HandlerFunc(habitHandler.GetHabits),
-		),
-	)
-
-	mux.Handle(
 		"GET /api/v1/habits/today",
 		middleware.AuthMiddleware(jwtManager)(
 			http.HandlerFunc(habitHandler.GetCheckedInHabitsToday),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/{id}/streak",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabitStreak),
+		),
+	)
+
+	mux.Handle(
+		"GET /api/v1/habits/{id}/history",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.GetHabitHistory),
+		),
+	)
+
+	mux.Handle(
+		"POST /api/v1/habits/{id}/check-in",
+		middleware.AuthMiddleware(jwtManager)(
+			http.HandlerFunc(habitHandler.CheckInHabit),
 		),
 	)
 
@@ -106,26 +114,18 @@ func SetupRoutes(
 	)
 
 	mux.Handle(
-		"POST /api/v1/habits/{id}/check-in",
+		"POST /api/v1/habits",
 		middleware.AuthMiddleware(jwtManager)(
-			http.HandlerFunc(habitHandler.CheckInHabit),
+			http.HandlerFunc(habitHandler.CreateHabit),
 		),
 	)
 
 	mux.Handle(
-		"GET /api/v1/habits/{id}/history",
+		"GET /api/v1/habits",
 		middleware.AuthMiddleware(jwtManager)(
-			http.HandlerFunc(habitHandler.GetHabitHistory),
+			http.HandlerFunc(habitHandler.GetHabits),
 		),
 	)
-
-	mux.Handle(
-		"GET /api/v1/habits/{id}/streak",
-		middleware.AuthMiddleware(jwtManager)(
-			http.HandlerFunc(habitHandler.GetHabitStreak),
-		),
-	)
-
 
 	// ================== Dashboard Routes ==================
 	mux.Handle(
